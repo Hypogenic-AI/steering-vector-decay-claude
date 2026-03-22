@@ -1,0 +1,19 @@
+\section{Introduction}
+\label{sec:intro}
+
+Activation steering lets practitioners control language model behavior at inference time by adding a learned direction to the residual stream~\citep{turner2023steering,rimsky2024steering}. The approach is appealingly simple: compute a steering vector from contrastive examples, add it with a scalar coefficient $\alpha$, and the model shifts toward the desired behavior. But how long does this shift last if the vector is only applied for the first few generation steps?
+
+Prior work offers a clear qualitative answer---initial-only steering fails~\citep{scalena2024dynamic}---but no quantitative one. \citet{scalena2024dynamic} show that steering only the first generated token produces text that quickly reverts to baseline behavior. \citet{xie2025comparative} propose a heuristic decay formula $\alpha_t = \alpha \cdot (1/(1 + \omega t))^k$ to gradually reduce steering strength, but this formula describes a \emph{desired} decay schedule, not the \emph{natural} decay of the steering signal in hidden states. The fundamental question remains unanswered: when a steering vector is removed, how quickly does its influence actually leave the model's representations?
+
+This question matters for engineering and for understanding transformer dynamics. If the steering signal persists for many tokens, practitioners could save compute by steering only early steps. If it vanishes instantly, continuous steering is unavoidable---or alternative persistence mechanisms (such as KV cache modification) become necessary. More broadly, the decay rate reveals how robustly transformers correct transient perturbations to their residual stream, with implications for adversarial robustness and mechanistic interpretability.
+
+We present the first direct measurement of steering vector decay curves. Our approach isolates the decay mechanism by using \emph{teacher-forced generation}: we first generate tokens under continuous steering, then replay the same token sequence while steering only the first $N$ steps. By holding token identity constant, we separate the steering signal in hidden states from confounds introduced by different token sequences. We measure the signed projection of the hidden-state perturbation onto the steering direction at each generation step, capturing both the magnitude and direction of residual influence.
+
+Our main findings on \qwen with sycophancy steering are:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+\item The steering signal decays to less than 5\% of its peak within one token after the vector is removed, with exponential time constants $\tau \approx 1.2$--$5.8$ tokens.
+\item The KV cache is the primary persistence mechanism: preserving it retains a small positive residual, while resetting it causes a negative rebound (overcorrection; Cohen's $d$ up to $3.41$).
+\item Counterintuitively, more initial steering tokens produce \emph{faster} relative decay (shorter $\tau$), suggesting stronger corrective dynamics in response to larger perturbations.
+\end{itemize}
+
+The rest of this paper is organized as follows. \Secref{sec:related} reviews activation steering and related work on steering schedules. \Secref{sec:method} describes our experimental methodology. \Secref{sec:results} presents the decay curves, exponential fits, and KV cache analysis. \Secref{sec:discussion} interprets these findings and discusses limitations. \Secref{sec:conclusion} summarizes our contributions.

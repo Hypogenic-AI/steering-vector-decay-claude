@@ -1,0 +1,38 @@
+{
+  "N=1": {
+    "peak_delta": 0.0,
+    "post_mean": 0.0,
+    "final_mean": 0.0,
+    "half_life": null,
+    "fit": {
+      "error": "fit_failed"
+    }
+  },
+  "N=3": {
+    "peak_delta": 0.0,
+    "post_mean": 0.0,
+    "final_mean": 0.0,
+    "half_life": null,
+    "fit": {
+      "error": "fit_failed"
+    }
+  },
+  "N=5": {
+    "peak_delta": 0.0,
+    "post_mean": 0.0,
+    "final_mean": 0.0,
+    "half_life": null,
+    "fit": {
+      "error": "fit_failed"
+    }
+  },
+  "N=10": {
+    "peak_delta": 0.0,
+    "post_mean": 0.0,
+    "final_mean": 0.0,
+    "half_life": null,
+    "fit": {
+      "error": "fit_failed"
+    }
+  }
+}

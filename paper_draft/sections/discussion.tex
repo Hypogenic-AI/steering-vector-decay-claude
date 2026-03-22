@@ -1,0 +1,27 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\para{Transformers aggressively correct transient perturbations.}
+The most striking finding is the speed of decay: the steering signal drops below 5\% of its peak within a single token. This is far faster than the decay schedules proposed by \citet{xie2025comparative}, whose formula $\alpha_t = \alpha \cdot (1/(1 + \omega t))^k$ with $k = 3$--$4$ reaches near-zero only after 8--9 steps. Our results show that the \emph{natural} decay of a perturbation in the residual stream is nearly instantaneous, suggesting that the transformer's layered computation acts as a strong low-pass filter on transient signals. Each forward pass through the remaining layers (22--28 in our setup) effectively washes out the perturbation from the residual stream.
+
+\para{The KV cache as a persistence mechanism.}
+Our KV cache analysis explains \emph{why} some prior work finds that initial steering has any effect at all. When steered key-value pairs remain in the cache, subsequent tokens attend to them, preserving a small positive trace of the steering direction in the hidden states. When these pairs are removed, the model overcorrects---hidden states move \emph{away} from the steering direction relative to baseline. This overcorrection suggests that the model partially adapts its computation to compensate for the steered attention patterns, and removing them leaves the compensatory adjustments without the signal they were compensating for.
+
+This finding directly supports \citet{belitsky2025kv}, who propose KV cache modification as a one-shot steering method precisely because cached representations persist through attention. Our results provide the mechanistic explanation: activation steering decays because the residual stream is recomputed at each step, while KV cache entries are fixed once written and influence all subsequent steps through attention.
+
+\para{More steering produces faster relative decay.}
+Counterintuitively, the time constant $\timeconstant$ decreases from 5.82 tokens ($N = 1$) to 1.21 tokens ($N = 10$). One possible explanation is a nonlinear corrective mechanism: larger perturbations to the residual stream trigger stronger self-correction in subsequent layers, perhaps through attention heads that act as ``error-correcting'' circuits~\citep{arditi2024refusal}. Alternatively, with more steered KV pairs, the transition from steered to unsteered computation at step $N$ creates a sharper discontinuity that the model resolves more quickly.
+
+\para{Implications for steering practice.}
+Our results have direct practical consequences. First, initial-only steering is ineffective: practitioners should not rely on steering a few early tokens and expecting the effect to persist. Second, continuous steering is necessary but should use a gradual decay schedule~\citep{scalena2024dynamic,xie2025comparative} to prevent degeneration. Third, for applications requiring persistent behavioral modification from a single intervention, KV cache steering~\citep{belitsky2025kv} is mechanistically better suited than activation addition.
+
+\para{Limitations.}
+Our study has several limitations that constrain the generality of our conclusions:
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+\item \textbf{Single model}: We study \qwen only. Larger models with more attention heads and layers may maintain the KV cache signal for longer, or may exhibit different decay dynamics.
+\item \textbf{Single behavior}: Sycophancy may not be representative. Behaviors with stronger linear representations (\eg refusal~\citep{arditi2024refusal}) might decay differently.
+\item \textbf{Single-layer intervention}: We steer at layer 21 only. Multi-layer steering or intervention at different layers could produce different persistence characteristics.
+\item \textbf{Single measurement layer}: We measure $\deltaprojection$ at layer 28. The full picture of how perturbations propagate through intermediate layers is not captured.
+\item \textbf{Model scale}: At 1.5B parameters, our model is relatively small. Scaling laws for steering decay remain unknown.
+\end{itemize}

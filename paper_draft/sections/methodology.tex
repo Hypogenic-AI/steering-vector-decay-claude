@@ -1,0 +1,52 @@
+\section{Methodology}
+\label{sec:method}
+
+\subsection{Overview}
+
+We isolate the decay of steering influence by comparing hidden states under different steering conditions while controlling for token identity via teacher-forcing. The key design choice is using \emph{incremental generation with KV cache}, which properly captures how steered key-value pairs from earlier steps persist in attention and influence subsequent hidden states.
+
+\subsection{Model and Steering Vector}
+
+\para{Model.} We use \qwen~\citep{qwen2024}, a 28-layer, 1.5B-parameter instruction-tuned model. We select this model for ungated access, fast iteration, and meaningful instruction-following behavior.
+
+\para{Steering vector extraction.} We compute a sycophancy steering vector using the \caa dataset from \citet{rimsky2024steering}, which contains question-answer pairs where one answer matches a persona's implied preference (sycophantic) and the other does not. We extract mean activation differences across 300 contrastive pairs at layers $\{0, 7, 14, 21, 28\}$. The resulting vector norms vary substantially: layers 0 and 7 produce near-zero vectors ($\|\steeringvec\| < 0.3$), while upper layers yield much stronger signals (layer 21: $\|\steeringvec\| = 3.66$; layer 28: $\|\steeringvec\| = 5.82$). We steer at \textbf{layer 21}, where the vector is strong and upstream of the measurement point.
+
+\para{Steering application.} We add the steering vector to the residual stream output at layer 21 with coefficient $\alpha = 8.0$, using a forward hook that intercepts the layer output during the forward pass.
+
+\subsection{Experimental Conditions}
+
+For each of 60 held-out evaluation prompts, we first generate 40 tokens under \textbf{continuous steering} (steering at every step) using greedy decoding, producing a reference token sequence $T = (t_1, t_2, \ldots, t_{40})$. We then teacher-force $T$ under the following conditions:
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+\item \textbf{Baseline}: Teacher-force $T$ with no steering. The KV cache accumulates naturally.
+\item \textbf{Continuous}: Teacher-force $T$ with steering at every step.
+\item \textbf{Initial-$N$}: Teacher-force $T$ with steering for the first $N$ steps only. The KV cache is preserved, so steered key-value pairs from steps $1, \ldots, N$ remain in the cache during steps $N+1, \ldots, 40$.
+\item \textbf{Initial-$N$-NoCache}: Same as Initial-$N$, but the KV cache is \emph{reset} at step $N$. This removes all steered key-value pairs, isolating the effect of the KV cache.
+\item \textbf{Free-$N$}: Free (autoregressive) generation with steering for the first $N$ steps. No teacher-forcing; the model generates its own continuations.
+\end{itemize}
+
+We test $N \in \{1, 3, 5, 10\}$ for a total of 12 conditions per prompt (1 baseline + 1 continuous + 4 initial + 4 no-cache + 4 free, though we focus analysis on the first 10 teacher-forced conditions).
+
+\subsection{Measurement}
+
+At each generation step, we capture the hidden state $\vh_t$ at \textbf{layer 28} (the final layer, downstream of the steering intervention at layer 21) using a forward hook. We compute the perturbation:
+\begin{equation}
+\label{eq:delta}
+\deltaprojection(t) = \frac{(\vh_t^{\mathrm{steered}} - \vh_t^{\mathrm{baseline}}) \cdot \hat{\steeringvec}}{\|\hat{\steeringvec}\|}
+\end{equation}
+where $\hat{\steeringvec}$ is the unit-normalized steering vector at layer 21. This \emph{signed projection} quantifies how much of the hidden-state perturbation remains aligned with the steering direction: positive values indicate residual steering influence, negative values indicate overcorrection, and zero indicates no effect.
+
+\subsection{Curve Fitting and Statistical Analysis}
+
+We fit an exponential decay model to the post-steering $\deltaprojection$ values:
+\begin{equation}
+\label{eq:decay}
+\deltaprojection(t) = A \cdot \exp\!\left(-\frac{t - N}{\timeconstant}\right) + C
+\end{equation}
+where $A$ is the amplitude, $\timeconstant$ is the time constant (in tokens), $C$ is the asymptotic residual, and $t - N$ indexes steps after the steering stops. We report $\timeconstant$, $R^2$ (goodness of fit), and derived metrics including half-life and time to 10\% of peak.
+
+To test the KV cache effect, we use paired $t$-tests comparing $\deltaprojection$ values (averaged over 10 post-steering steps) between the Initial-$N$ and Initial-$N$-NoCache conditions across all 60 prompts, reporting Cohen's $d$ for effect size.
+
+\subsection{Reproducibility}
+
+All experiments use random seed 42, greedy decoding (temperature 0), Python 3.12.8, PyTorch 2.10.0, and Transformers 5.3.0. Prompts are formatted in ChatML format. We run on a single NVIDIA RTX A6000 GPU (49GB). The full experiment (60 prompts $\times$ 12 conditions) completes in approximately 16 minutes.

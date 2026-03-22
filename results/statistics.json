@@ -1,0 +1,97 @@
+{
+  "N=1": {
+    "free_post_mean": 0.053723017299780615,
+    "free_post_std": 0.01766962244343429,
+    "teacher_post_mean": 0.04892183227828355,
+    "teacher_post_std": 0.019308740649616133,
+    "t_statistic": -3.8917744560774863,
+    "p_value": 0.00020657642599053227,
+    "cohens_d": -0.2594206341911633,
+    "free_decay_fit": {
+      "A": 0.0725864203385774,
+      "tau": 1.3353408157438265,
+      "C": 0.054958186700862624,
+      "R2": 0.42421457850728084
+    },
+    "teacher_decay_fit": {
+      "A": 0.07807584849849285,
+      "tau": 1.5024802739940204,
+      "C": 0.05056254774931635,
+      "R2": 0.41848094453212337
+    }
+  },
+  "N=3": {
+    "free_post_mean": 0.047682403745420744,
+    "free_post_std": 0.016700736400679844,
+    "teacher_post_mean": 0.041702981883863684,
+    "teacher_post_std": 0.01891962474913834,
+    "t_statistic": -3.796181599337796,
+    "p_value": 0.00028675448092180635,
+    "cohens_d": -0.33508106646391045,
+    "free_decay_fit": {
+      "A": 0,
+      "tau": 0,
+      "C": 0,
+      "R2": 0,
+      "error": "Initial guess is outside of provided bounds"
+    },
+    "teacher_decay_fit": {
+      "A": 0.026093580831277993,
+      "tau": 0.6814958562143885,
+      "C": 0.05047191500967119,
+      "R2": 0.0663239285144358
+    }
+  },
+  "N=5": {
+    "free_post_mean": 0.046989340998698025,
+    "free_post_std": 0.018002541694734794,
+    "teacher_post_mean": 0.0390162010716449,
+    "teacher_post_std": 0.018718717182583604,
+    "t_statistic": -4.189906930376773,
+    "p_value": 7.211792249582252e-05,
+    "cohens_d": -0.4341694288396281,
+    "free_decay_fit": {
+      "A": 0,
+      "tau": 0,
+      "C": 0,
+      "R2": 0,
+      "error": "Initial guess is outside of provided bounds"
+    },
+    "teacher_decay_fit": {
+      "A": 0,
+      "tau": 0,
+      "C": 0,
+      "R2": 0,
+      "error": "Initial guess is outside of provided bounds"
+    }
+  },
+  "N=10": {
+    "free_post_mean": 0.04766698232284398,
+    "free_post_std": 0.02105854380947884,
+    "teacher_post_mean": 0.04590632507068222,
+    "teacher_post_std": 0.020290881150139065,
+    "t_statistic": -1.0816967599907044,
+    "p_value": 0.28267817169009624,
+    "cohens_d": -0.08514526673799917,
+    "free_decay_fit": {
+      "A": 0,
+      "tau": 0,
+      "C": 0,
+      "R2": 0,
+      "error": "Initial guess is outside of provided bounds"
+    },
+    "teacher_decay_fit": {
+      "A": 0,
+      "tau": 0,
+      "C": 0,
+      "R2": 0,
+      "error": "Initial guess is outside of provided bounds"
+    }
+  },
+  "baseline": {
+    "no_steering_mean": 0.05776036104434752,
+    "no_steering_std": 0.04314633282723355,
+    "continuous_mean": 0.05447528840813902,
+    "continuous_std": 0.04486920273327792
+  }
+}
