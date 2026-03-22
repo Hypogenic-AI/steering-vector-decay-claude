@@ -1,0 +1,41 @@
+idea:
+  title: Steering Vector Decay
+  domain: nlp
+  hypothesis: 'The influence of an activation steering vector added during the initial
+    steps of language model generation decays over subsequent tokens; the rate and
+    nature of this decay may differ depending on whether generated tokens are teacher-forced
+    into the model without further steering.
+
+    '
+  background:
+    description: 'Activation Steering is awesome and simple: use contrastive pairs
+      to make a vector
+
+      v
+
+      that captures a behavior the model encodes, add it at every generation step,
+      and you''ve got a model that acts a certain way. But if you add
+
+      v
+
+      for the first three tokens of generation, and then stop, how quickly do hidden
+      states stop looking like
+
+      v
+
+      ? How does this change if you teacher-force the tokens generated with
+
+      v
+
+      but don''t add them to the hidden state?
+
+      '
+  metadata:
+    author: Ari Holtzman
+    source: IdeaHub
+    source_url: https://hypogenic.ai/ideahub/idea/h0MZpeE5daQUHo8dYkxt
+    idea_id: steering_vector_decay_20260322_214206_91105c2f
+    created_at: '2026-03-22T21:42:06.447603'
+    status: submitted
+    github_repo_name: steering-vector-decay-claude
+    github_repo_url: https://github.com/Hypogenic-AI/steering-vector-decay-claude
